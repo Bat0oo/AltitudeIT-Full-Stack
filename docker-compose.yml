@@ -6,17 +6,16 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-     - db
+      - db
     environment:
-     - ConnectionStrings__DefaultConnection=Server=db;Database=MyDatabase;User Id=sa;Password=Sifra123!;
+      - ConnectionStrings__DefaultConnection=Server=db;Database=MyDatabase;User Id=sa;Password=Sifra123!
 
- 
-#frontend:
- # build: ./ #dodati putanju
-  #ports:
-  # -"3000:80"
-  #depends_on:
-  # -backend
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
