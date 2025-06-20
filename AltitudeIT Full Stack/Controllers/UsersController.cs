@@ -1,10 +1,7 @@
-﻿using AltitudeIT_Full_Stack.Data;
-using AltitudeIT_Full_Stack.DTO;
-using AltitudeIT_Full_Stack.Models;
+﻿using AltitudeIT_Full_Stack.DTO;
+using AltitudeIT_Full_Stack.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AltitudeIT_Full_Stack.Controllers
 {
@@ -13,146 +10,106 @@ namespace AltitudeIT_Full_Stack.Controllers
     [Authorize]
     public class UsersController : ControllerBase
     {
-        private readonly Data.ApplicationDbContext _context;
-        public UsersController(ApplicationDbContext context)
+        private readonly IUserService _userService;
+        public UsersController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
         [HttpGet]
-        [Authorize(Roles="Admin")]
-        public async Task<IActionResult> GetUsers()
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetUsers()
         {
-            var users = await _context.Users.Select(u=>new UserResponseDTO
+            try
             {
-                Id= u.Id,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                Email = u.Email,
-                Role = u.Role,
-                ContactNumber = u.ContactNumber,
-                Image = u.Image
-            }).ToListAsync();
-            return Ok(users);
-        }
-        [HttpGet("{id}") ]
-        public async Task<IActionResult> GetUserByID(int id) {
-
-            var user = await _context.Users.FindAsync(id);
-            
-            if (user == null)
-            {
-                return NotFound();
+                var users = await _userService.GetAllUsersAsync();
+                return Ok(users);
             }
-
-            var userResponseDTO = new UserResponseDTO
+            catch (Exception ex)
             {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Role = user.Role,
-                ContactNumber = user.ContactNumber,
-                Image = user.Image
-            };
-            return Ok(userResponseDTO); 
+                return StatusCode(500, new { message = "An error while retrieving users", error = ex.Message });
+            }
+        }
+        [HttpGet("{id}")]
+        //[Authorize]
+        public async Task<ActionResult<UserResponseDTO>> GetUserById(int id)
+        {
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user == null)
+                {
+                    return NotFound(new { message = $"User with {id} not found" });
+                }
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving the user by id", error = ex.Message });
+            }
         }
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] RegisterRequestDTO request)
+        public async Task<ActionResult<UserResponseDTO>> CreateUser([FromBody] RegisterRequestDTO request)
         {
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            try
             {
-                return BadRequest(new { message = "User with this email already exists" });
+                var user = await _userService.CreateUserAsync(request);
+                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
             }
-
-            var user = new User
+            catch (InvalidOperationException ex)
             {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Email = request.Email,
-                Role = request.Role,
-                ContactNumber = request.ContactNumber,
-                Image = request.Image,
-                Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            var userResponse = new UserResponseDTO
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
             {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email,
-                Role = user.Role,
-                ContactNumber = user.ContactNumber,
-                Image = user.Image
-            };
-
-            return CreatedAtAction(nameof(GetUserByID), new { id = user.Id }, userResponse);
-
+                return StatusCode(500, new { message = "An error occurred while creating the user", error = ex.Message });
+            }
         }
-
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateRequestDTO request)
+        public async Task<ActionResult<UserResponseDTO>> UpdateUser(int id, [FromBody] UserUpdateRequestDTO request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            var userToUpdate = await _context.Users.FindAsync(id);
-            if (userToUpdate == null)
+            try
             {
-                return NotFound();
+                var user = await _userService.UpdateUserAsync(id, request);
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+                return Ok(user);
             }
-
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email && u.Id !=id))
+            catch (InvalidOperationException ex)
             {
-                return BadRequest(new { message = "Email is already taken." });
+                return BadRequest(new { message = ex.Message });
             }
-
-            userToUpdate.FirstName = request.FirstName;
-            userToUpdate.LastName = request.LastName;
-            userToUpdate.Email = request.Email;
-            userToUpdate.ContactNumber= request.ContactNumber;
-            userToUpdate.Image = request.Image;
-            if(!string.IsNullOrEmpty(userToUpdate.Password))
+            catch (Exception ex)
             {
-                userToUpdate.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                return StatusCode(500, new { message = "Error happened while updating user", error = ex.Message });
             }
-            await _context.SaveChangesAsync();
-
-            var userResponse = new UserResponseDTO
-            {
-                Id = userToUpdate.Id,
-                FirstName = userToUpdate.FirstName,
-                LastName = userToUpdate.LastName,
-                Email = userToUpdate.Email,
-                Image = userToUpdate.Image,
-                Role = userToUpdate.Role
-            };
-            return Ok(userResponse);
         }
-
         [HttpDelete("{id}")]
         [Authorize(Roles ="Admin")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<ActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
+            try
             {
-                return NotFound();
+                bool deleted= await _userService.DeleteUserAsync(id);
+                if (!deleted)
+                {
+                    return NotFound(new {message="User not found"});
+                }
+                return NoContent();
             }
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-            return NoContent();
+            catch(Exception ex) 
+            {
+                return StatusCode(500, new {message = $"Error happened while trying to delete user with {id} id", error=ex.Message});
+            }
         }
     }
 }

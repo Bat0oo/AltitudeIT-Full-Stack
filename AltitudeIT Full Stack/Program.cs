@@ -1,4 +1,11 @@
 
+using AltitudeIT_Full_Stack.Data;
+using AltitudeIT_Full_Stack.Repositories;
+using AltitudeIT_Full_Stack.Repositories.Interfaces;
+using AltitudeIT_Full_Stack.Services;
+using AltitudeIT_Full_Stack.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
 namespace AltitudeIT_Full_Stack
 {
     public class Program
@@ -14,6 +21,13 @@ namespace AltitudeIT_Full_Stack
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+            builder.Services.AddScoped<IUserService, UserService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -24,6 +38,7 @@ namespace AltitudeIT_Full_Stack
             }
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
