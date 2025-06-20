@@ -4,11 +4,11 @@ services:
   backend:
     build: ./AltitudeIT Full Stack
     ports:
-      - "5000:5000"
+      - "8080:8080"
     depends_on:
       - db
     environment:
-      - ConnectionStrings__DefaultConnection=Server=db;Database=MyDatabase;User Id=sa;Password=Sifra123!
+      -  ConnectionStrings__DefaultConnection=Server=db;Database=MyDatabase;User Id=sa;Password=Sifra123!;TrustServerCertificate=true
 
   frontend:
     build: ./frontend
