@@ -20,7 +20,7 @@ namespace AltitudeIT_Full_Stack.Models
         [StringLength(100, ErrorMessage = "Password must be between 6 and 100 characters.", MinimumLength = 6)]
         public string Password { get; set; } = string.Empty;
         [Required(ErrorMessage = "Role is required.")]
-        public Role Role { get; set; }
+        public Role Role { get; set; } = Role.User;
         [Required(ErrorMessage = "Contact number is required.")]
         [DataType(DataType.PhoneNumber)]
         [RegularExpression(@"^\+?\d{10,15}$", ErrorMessage = "Invalid phone number.")]

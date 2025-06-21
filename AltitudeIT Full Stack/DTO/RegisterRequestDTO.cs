@@ -23,6 +23,7 @@ namespace AltitudeIT_Full_Stack.DTO
         public Role Role { get; set; }
         [Required(ErrorMessage = "Contact number is required.")]
         [DataType(DataType.PhoneNumber)]
+        //[Phone]
         [RegularExpression(@"^\+?\d{10,15}$", ErrorMessage = "Invalid phone number.")]
         public string ContactNumber { get; set; } = string.Empty;
         [Required(ErrorMessage = "Image is required.")]
