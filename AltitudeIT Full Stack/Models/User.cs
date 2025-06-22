@@ -25,10 +25,10 @@ namespace AltitudeIT_Full_Stack.Models
         [DataType(DataType.PhoneNumber)]
         [RegularExpression(@"^\+?\d{10,15}$", ErrorMessage = "Invalid phone number.")]
         public string ContactNumber { get; set; } =string.Empty;
-        [Required(ErrorMessage = "Image is required.")]
-        [Url(ErrorMessage = "Invalid image URL.")]
-        [StringLength(200, ErrorMessage = "Image URL cannot be longer than 200 characters.")]
-        public string Image { get; set; } = string.Empty;
+        //[Required(ErrorMessage = "Image is required.")]
+        //[Url(ErrorMessage = "Invalid image URL.")]
+        //[StringLength(200, ErrorMessage = "Image URL cannot be longer than 200 characters.")]
+        public string? Image { get; set; }
 
     }
 }

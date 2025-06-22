@@ -15,7 +15,7 @@ namespace AltitudeIT_Full_Stack.Services
             _userRepository = userRepository;
             _jwtService = jwtService;
         }
-        public async Task<UserResponseDTO> RegisterAsync(RegisterRequestDTO request)
+        public async Task<UserResponseDTO> RegisterAsync(RegisterRequestDTO request, string? imagePath = null)
         {
 
             if (await _userRepository.EmailExistsAsync(request.Email))
@@ -30,7 +30,9 @@ namespace AltitudeIT_Full_Stack.Services
                 Email = request.Email,
                 Role = request.Role,
                 ContactNumber = request.ContactNumber,
-                Image = request.Image,
+                // Image = request.Image,
+                //Image = "test",
+                Image=imagePath, //placeholder maybe
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
             };
 
@@ -76,7 +78,9 @@ namespace AltitudeIT_Full_Stack.Services
                 Email = user.Email,
                 Role = user.Role,
                 ContactNumber = user.ContactNumber,
-                Image = user.Image
+                //Image = user.Image
+                //Image = "test"
+                Image=user.Image
             };
         }
 

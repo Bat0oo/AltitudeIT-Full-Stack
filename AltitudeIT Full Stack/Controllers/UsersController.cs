@@ -11,9 +11,11 @@ namespace AltitudeIT_Full_Stack.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UsersController(IUserService userService)
+        private readonly IWebHostEnvironment _environment;
+        public UsersController(IUserService userService, IWebHostEnvironment environment)
         {
             _userService = userService;
+            _environment = environment;
         }
         [HttpGet]
         [Authorize(Roles = "Admin")]
@@ -56,7 +58,13 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
             try
             {
-                var user = await _userService.CreateUserAsync(request);
+                string? imagePath = null;
+                if (request.Image != null)
+                {
+                    imagePath = await SaveImageAsync(request.Image);
+                }
+
+                var user = await _userService.CreateUserAsync(request, imagePath);
                 return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
             }
             catch (InvalidOperationException ex)
@@ -77,7 +85,13 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
             try
             {
-                var user = await _userService.UpdateUserAsync(id, request);
+                string? imagePath = null;
+                if (request.ImageFile != null) 
+                {
+                    imagePath = await SaveImageAsync(request.ImageFile);
+                }
+
+                var user = await _userService.UpdateUserAsync(id, request,  imagePath);
                 if (user == null)
                 {
                     return NotFound(new { message = "User not found" });
@@ -111,5 +125,29 @@ namespace AltitudeIT_Full_Stack.Controllers
                 return StatusCode(500, new {message = $"Error happened while trying to delete user with {id} id", error=ex.Message});
             }
         }
+        private async Task<string> SaveImageAsync(IFormFile image)
+        {
+            try
+            {
+                var uploadsPath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "uploads", "profiles");
+                Directory.CreateDirectory(uploadsPath);
+
+                var fileExtension = Path.GetExtension(image.FileName);
+                var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                var filePath = Path.Combine(uploadsPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream);
+                }
+
+                return $"/uploads/profiles/{fileName}";
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to save image: {ex.Message}");
+            }
+        }
+
     }
 }

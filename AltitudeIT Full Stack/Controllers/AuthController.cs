@@ -12,12 +12,14 @@ namespace AltitudeIT_Full_Stack.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+        private readonly IWebHostEnvironment _environment;
+        public AuthController(IAuthService authService, IWebHostEnvironment environment)
         {
             _authService = authService;
+            _environment = environment;
         }
         [HttpPost("register")]
-        public async Task<ActionResult<UserResponseDTO>> Register([FromBody] RegisterRequestDTO request)
+        public async Task<ActionResult<UserResponseDTO>> Register([FromForm] RegisterRequestDTO request)
         {
             if (!ModelState.IsValid)
             {
@@ -26,7 +28,13 @@ namespace AltitudeIT_Full_Stack.Controllers
 
             try
             {
-                var user = await _authService.RegisterAsync(request);
+                string? imagePath = null;
+                if (request.Image != null)
+                {
+                    imagePath = await SaveImageAsync(request.Image);
+                }
+
+                var user = await _authService.RegisterAsync(request, imagePath);
                 return CreatedAtAction(nameof(GetCurrentUser), null, user);
             }
             catch (InvalidOperationException ex)
@@ -39,7 +47,7 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
         }
         [HttpPost("login")]
-        public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request)
+        public async Task<ActionResult<LoginResponseDTO>> Login([FromForm] LoginRequestDTO request)
         {
             if (!ModelState.IsValid)
             {
@@ -87,5 +95,33 @@ namespace AltitudeIT_Full_Stack.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving user information", error = ex.Message });
             }
         }
-    }
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok(new { message = "CORS is working!" });
+        }
+
+        private async Task<string> SaveImageAsync(IFormFile image)
+        {
+            try
+            {
+                var uploadsPath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "uploads", "profiles");
+                Directory.CreateDirectory(uploadsPath);
+
+                var fileExtension = Path.GetExtension(image.FileName);
+                var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                var filePath = Path.Combine(uploadsPath, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await image.CopyToAsync(stream);
+                }
+                return $"/uploads/profiles/{fileName}";
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to save image: {ex.Message}");
+            }
+        }
+        }
 }

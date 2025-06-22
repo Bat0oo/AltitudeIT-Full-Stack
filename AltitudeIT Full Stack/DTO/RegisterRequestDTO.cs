@@ -1,5 +1,6 @@
 ﻿using AltitudeIT_Full_Stack.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace AltitudeIT_Full_Stack.DTO
 {
@@ -20,16 +21,17 @@ namespace AltitudeIT_Full_Stack.DTO
         [StringLength(100, ErrorMessage = "Password must be between 6 and 100 characters.", MinimumLength = 6)]
         public string Password { get; set; } = string.Empty;
         [Required(ErrorMessage = "Role is required.")]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Role Role { get; set; }
         [Required(ErrorMessage = "Contact number is required.")]
         [DataType(DataType.PhoneNumber)]
         //[Phone]
         [RegularExpression(@"^\+?\d{10,15}$", ErrorMessage = "Invalid phone number.")]
         public string ContactNumber { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Image is required.")]
-        [Url(ErrorMessage = "Invalid image URL.")]
-        [StringLength(200, ErrorMessage = "Image URL cannot be longer than 200 characters.")]
-        public string Image { get; set; } = string.Empty;
+        // [Required(ErrorMessage = "Image is required.")]
+        // [Url(ErrorMessage = "Invalid image URL.")]
+        //[StringLength(200, ErrorMessage = "Image URL cannot be longer than 200 characters.")]
+        public IFormFile? Image { get; set; }
 
     }
 }
