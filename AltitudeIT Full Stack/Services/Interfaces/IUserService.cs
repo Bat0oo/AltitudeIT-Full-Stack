@@ -6,8 +6,8 @@ namespace AltitudeIT_Full_Stack.Services.Interfaces
     {
         Task<IEnumerable<UserResponseDTO>> GetAllUsersAsync();
         Task<UserResponseDTO?> GetUserByIdAsync(int id);
-        Task<UserResponseDTO> CreateUserAsync(RegisterRequestDTO request);
-        Task<UserResponseDTO?> UpdateUserAsync(int id, UserUpdateRequestDTO request);
+        Task<UserResponseDTO> CreateUserAsync(RegisterRequestDTO request, string? imagePath = null);
+        Task<UserResponseDTO?> UpdateUserAsync(int id, UserUpdateRequestDTO request, string? imagePath = null);
         Task<bool> DeleteUserAsync(int id);
     }
 }

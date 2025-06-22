@@ -29,7 +29,7 @@ namespace AltitudeIT_Full_Stack.Services
                 return MapToResponseDTO(user);
             }
         }
-        public async Task<UserResponseDTO> CreateUserAsync(RegisterRequestDTO request)
+        public async Task<UserResponseDTO> CreateUserAsync(RegisterRequestDTO request, string? imagePath = null)
         {
             if(await _userRepository.EmailExistsAsync(request.Email))
             {
@@ -42,14 +42,14 @@ namespace AltitudeIT_Full_Stack.Services
                 Email = request.Email,
                 Role = request.Role,
                 ContactNumber = request.ContactNumber,
-                Image = request.Image,
+                Image = imagePath,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
 
             };
             var createdUser= await _userRepository.CreateUserAsync(user);
             return MapToResponseDTO(createdUser);
         }
-        public async Task<UserResponseDTO?> UpdateUserAsync(int id, UserUpdateRequestDTO request)
+        public async Task<UserResponseDTO?> UpdateUserAsync(int id, UserUpdateRequestDTO request, string? imagePath = null)
         {
             var userToUpdate= await _userRepository.GetUserByIdAsync(id);
             if(userToUpdate == null)
@@ -64,10 +64,14 @@ namespace AltitudeIT_Full_Stack.Services
             userToUpdate.LastName = request.LastName;
             userToUpdate.Email = request.Email;
             userToUpdate.Role = request.Role;
-            userToUpdate.Image= request.Image;
+            //userToUpdate.Image= request.Image;
             userToUpdate.ContactNumber = request.ContactNumber;
+            if (!string.IsNullOrEmpty(imagePath))
+            {
+                userToUpdate.Image = imagePath;
+            }
 
-            if(!string.IsNullOrEmpty(request.Password))
+            if (!string.IsNullOrEmpty(request.Password))
             {
                 userToUpdate.Password=BCrypt.Net.BCrypt.HashPassword(request.Password);
             }
