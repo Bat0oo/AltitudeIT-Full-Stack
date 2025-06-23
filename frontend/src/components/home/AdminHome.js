@@ -53,7 +53,7 @@ const AdminHome = () => {
           <Link to="/admin/home" className="nav-item active">Home</Link>
           <Link to="/admin/products" className="nav-item">Products</Link>
           <Link to="/admin/users" className="nav-item">Users</Link>
-          <Link to="/admin/orders" className="nav-item">Orders</Link>
+          <Link to="/profile" className="nav-item">Profile</Link>
         </div>
       </div>
 

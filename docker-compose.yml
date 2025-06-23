@@ -9,6 +9,8 @@ services:
       - db
     environment:
       -  ConnectionStrings__DefaultConnection=Server=db;Database=MyDatabase;User Id=sa;Password=Sifra123!;TrustServerCertificate=true
+    volumes:
+      - uploads:/app/uploads
 
   frontend:
     build: ./frontend
@@ -32,3 +34,4 @@ services:
 
 volumes:
   mssqldata:
+  uploads:

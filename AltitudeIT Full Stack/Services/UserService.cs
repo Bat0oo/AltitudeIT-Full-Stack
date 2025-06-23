@@ -8,9 +8,11 @@ namespace AltitudeIT_Full_Stack.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository)
+        private readonly IImageService _imageService;
+        public UserService(IUserRepository userRepository, IImageService imageService)
         {
             _userRepository = userRepository;
+            _imageService = imageService;
         }
         public async Task<IEnumerable<UserResponseDTO>> GetAllUsersAsync()
         {
@@ -66,21 +68,44 @@ namespace AltitudeIT_Full_Stack.Services
             userToUpdate.Role = request.Role;
             //userToUpdate.Image= request.Image;
             userToUpdate.ContactNumber = request.ContactNumber;
+
+            if (!string.IsNullOrEmpty(request.Password))
+            {
+                userToUpdate.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            }
+
             if (!string.IsNullOrEmpty(imagePath))
             {
                 userToUpdate.Image = imagePath;
             }
-
-            if (!string.IsNullOrEmpty(request.Password))
+            else if (imagePath == null && request.ImageFile == null)
             {
-                userToUpdate.Password=BCrypt.Net.BCrypt.HashPassword(request.Password);
+                userToUpdate.Image = null;
             }
+
+
             var updatedUser = await _userRepository.UpdateUserAsync(userToUpdate);
             return MapToResponseDTO(updatedUser);
         }
         public async Task<bool> DeleteUserAsync(int id)
         {
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null)
+                return false;
+
+            if (!string.IsNullOrEmpty(user.Image))
+            {
+                try
+                {
+                    await _imageService.DeleteImageAsync(user.Image);
+                }
+                catch { 
+ 
+                }
+            }
+
             return await _userRepository.DeleteUserAsync(id);
+
         }
 
         private static UserResponseDTO MapToResponseDTO(User user)

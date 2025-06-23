@@ -62,6 +62,11 @@ export const AuthProvider = ({ children }) => {
     return user?.role?.toLowerCase() === 'customer';
   };
 
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+  };
+
   const value = {
     user,
     login,

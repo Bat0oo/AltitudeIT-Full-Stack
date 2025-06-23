@@ -8,6 +8,9 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import UserHome from './components/home/UserHome';
 import AdminHome from './components/home/AdminHome';
+import UserProfile from './components/common/UserProfile'; 
+import AdminUsers from './components/admin/AdminUsers';
+
 import './styles/global.css';
 
 function App() {
@@ -20,7 +23,7 @@ function App() {
             
             
            <Route path="/" element={<Layout />} />
-           <Route index element={<Navigate to="/home" replace />} />
+           <Route index element={<Navigate to="/login" replace />} />
 
            <Route 
               path="/user/home" 
@@ -41,14 +44,12 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route 
-              path="/user/profile" 
+              path="/profile" 
               element={
-                <ProtectedRoute requiredRole={1}>
-                  <div className="dashboard-container">
-                    <h1>User Profile Page TODO</h1>
-                    <p>TODO</p>
-                  </div>
+               <ProtectedRoute>
+                  <UserProfile />
                 </ProtectedRoute>
+
               } 
             />
 
@@ -64,7 +65,7 @@ function App() {
             <Route 
               path="/admin/products" 
               element={
-                <ProtectedRoute requiredRole="admin">
+                <ProtectedRoute requiredRole={2}>
                   <div className="dashboard-container">
                     <h1>Admin Products Management TODO</h1>
                     <p>TODO</p>
@@ -75,11 +76,8 @@ function App() {
             <Route 
               path="/admin/users" 
               element={
-                <ProtectedRoute requiredRole="admin">
-                  <div className="dashboard-container">
-                    <h1>User Management TODO</h1>
-                    <p>TODO</p>
-                  </div>
+                <ProtectedRoute requiredRole={2}>
+                  <AdminUsers></AdminUsers>
                 </ProtectedRoute>
               } 
             />
@@ -93,10 +91,12 @@ function App() {
 const DashboardRedirect = () => {
   const { user } = useAuth();
   
-  if (user?.role?.toLowerCase() === 'admin') {
+  if (user?.role === 2) {
     return <Navigate to="/admin/home" replace />;
-  } else {
-    return <Navigate to="/customer/home" replace />;
+  } else if (user?.role===1){
+    return <Navigate to="/user/home" replace />;
+  }else{
+    return <Navigate to="/login" replace />;
   }
 };
 
