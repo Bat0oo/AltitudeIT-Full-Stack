@@ -1,7 +1,10 @@
-﻿using AltitudeIT_Full_Stack.DTO;
+﻿using AltitudeIT_Full_Stack.Data;
+using AltitudeIT_Full_Stack.DTO;
 using AltitudeIT_Full_Stack.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace AltitudeIT_Full_Stack.Controllers
 {
@@ -12,10 +15,14 @@ namespace AltitudeIT_Full_Stack.Controllers
     {
         private readonly IUserService _userService;
         private readonly IWebHostEnvironment _environment;
-        public UsersController(IUserService userService, IWebHostEnvironment environment)
+        private readonly IImageService _imageService;
+        private readonly ApplicationDbContext _applicationDbContext;
+        public UsersController(IUserService userService, IWebHostEnvironment environment, IImageService imageService, ApplicationDbContext context)
         {
             _userService = userService;
             _environment = environment;
+            _imageService = imageService;
+            _applicationDbContext = context;
         }
         [HttpGet]
         [Authorize(Roles = "Admin")]
@@ -50,7 +57,7 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
         }
         [HttpPost]
-        public async Task<ActionResult<UserResponseDTO>> CreateUser([FromBody] RegisterRequestDTO request)
+        public async Task<ActionResult<UserResponseDTO>> CreateUser([FromForm] RegisterRequestDTO request) //[fromform] [formbody]
         {
             if (!ModelState.IsValid)
             {
@@ -58,13 +65,13 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
             try
             {
-                string? imagePath = null;
-                if (request.Image != null)
+                var user = await _userService.CreateUserAsync(request);
+                if (request.Image != null && _imageService.IsValidImage(request.Image))
                 {
-                    imagePath = await SaveImageAsync(request.Image);
+                    var imagePath = await _imageService.SaveImageAsync(request.Image, user.Id);
+                    user.Image = imagePath;
+                    await _applicationDbContext.SaveChangesAsync();
                 }
-
-                var user = await _userService.CreateUserAsync(request, imagePath);
                 return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
             }
             catch (InvalidOperationException ex)
@@ -77,26 +84,41 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
         }
         [HttpPut("{id}")]
-        public async Task<ActionResult<UserResponseDTO>> UpdateUser(int id, [FromBody] UserUpdateRequestDTO request)
+        public async Task<ActionResult<UserResponseDTO>> UpdateUser(int id, [FromForm] UserUpdateRequestDTO request)
         {
+            Console.WriteLine($"Updating user {id}");
+            Console.WriteLine($"Image file received: {request.ImageFile?.FileName ?? "null"}");
+            Console.WriteLine($"Request data: {JsonSerializer.Serialize(request)}");
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
             try
             {
-                string? imagePath = null;
-                if (request.ImageFile != null) 
-                {
-                    imagePath = await SaveImageAsync(request.ImageFile);
-                }
-
-                var user = await _userService.UpdateUserAsync(id, request,  imagePath);
-                if (user == null)
+                // var user = await _userService.UpdateUserAsync(id, request);
+                var existingUser = await _userService.GetUserByIdAsync(id);
+                if (existingUser == null)
                 {
                     return NotFound(new { message = "User not found" });
                 }
-                return Ok(user);
+                string newImagePath = existingUser.Image; 
+                
+                if (request.ImageFile != null && _imageService.IsValidImage(request.ImageFile))
+                {
+                    if (!string.IsNullOrEmpty(existingUser.Image))
+                    {
+                        await _imageService.DeleteImageAsync(existingUser.Image);
+                    }
+
+                    newImagePath = await _imageService.SaveImageAsync(request.ImageFile, id);
+                    Console.WriteLine($"New image saved: {newImagePath}");
+
+                }
+
+                var updatedUser = await _userService.UpdateUserAsync(id, request, newImagePath);
+                await _applicationDbContext.SaveChangesAsync();
+
+                return Ok(new {success=true, data=updatedUser});
             }
             catch (InvalidOperationException ex)
             {
@@ -104,6 +126,8 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Exception details: {ex}");
+                Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
                 return StatusCode(500, new { message = "Error happened while updating user", error = ex.Message });
             }
         }
@@ -113,6 +137,12 @@ namespace AltitudeIT_Full_Stack.Controllers
         {
             try
             {
+                var user = await _userService.GetUserByIdAsync(id);
+                if (user != null && !string.IsNullOrEmpty(user.Image))
+                {
+                    await _imageService.DeleteImageAsync(user.Image);
+                }
+
                 bool deleted= await _userService.DeleteUserAsync(id);
                 if (!deleted)
                 {
@@ -125,28 +155,61 @@ namespace AltitudeIT_Full_Stack.Controllers
                 return StatusCode(500, new {message = $"Error happened while trying to delete user with {id} id", error=ex.Message});
             }
         }
-        private async Task<string> SaveImageAsync(IFormFile image)
+        public async Task<string> SaveImageAsync(IFormFile file)
+        {
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "profiles");
+
+            // Ensure directory exists
+            if (!Directory.Exists(uploadsPath))
+            {
+                Directory.CreateDirectory(uploadsPath);
+            }
+
+            var fileName = $"{Guid.NewGuid()}.jpg";
+            var filePath = Path.Combine(uploadsPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return $"/uploads/profiles/{fileName}";
+        }
+        [HttpGet("images/{fileName}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetImage(string fileName)
         {
             try
             {
-                var uploadsPath = Path.Combine(_environment.WebRootPath ?? _environment.ContentRootPath, "uploads", "profiles");
-                Directory.CreateDirectory(uploadsPath);
-
-                var fileExtension = Path.GetExtension(image.FileName);
-                var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                var uploadsPath = Path.Combine("/app/uploads", "profiles"); // Docker volume path
                 var filePath = Path.Combine(uploadsPath, fileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                if (!System.IO.File.Exists(filePath))
                 {
-                    await image.CopyToAsync(stream);
+                    return NotFound(new { message = "Image not found" });
                 }
 
-                return $"/uploads/profiles/{fileName}";
+                var imageBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+                var contentType = GetContentType(fileName);
+
+                return File(imageBytes, contentType);
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Failed to save image: {ex.Message}");
+                return StatusCode(500, new { message = "Error retrieving image", error = ex.Message });
             }
+        }
+        private string GetContentType(string fileName)
+        {
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
         }
 
     }

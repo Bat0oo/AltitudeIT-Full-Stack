@@ -1,5 +1,7 @@
 ﻿using AltitudeIT_Full_Stack.Enums;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AltitudeIT_Full_Stack.Models
 {
@@ -29,6 +31,8 @@ namespace AltitudeIT_Full_Stack.Models
         //[Url(ErrorMessage = "Invalid image URL.")]
         //[StringLength(200, ErrorMessage = "Image URL cannot be longer than 200 characters.")]
         public string? Image { get; set; }
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
 
     }
 }

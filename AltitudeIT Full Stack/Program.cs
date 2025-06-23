@@ -7,6 +7,7 @@ using AltitudeIT_Full_Stack.Services;
 using AltitudeIT_Full_Stack.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -77,6 +78,8 @@ namespace AltitudeIT_Full_Stack
 
             builder.Services.AddScoped<IJwtService, JwtService>();
 
+            builder.Services.AddScoped<IImageService, ImageService>();
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
@@ -85,7 +88,20 @@ namespace AltitudeIT_Full_Stack
             //    context.Database.Migrate();
             }
 
-            // Configure the HTTP request pipeline.
+            //app.UseStaticFiles();
+            var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider("/app/uploads"),
+                RequestPath = "/api/uploads" ,
+                OnPrepareResponse = ctx =>
+                {
+                    // Optional: Add cache headers
+                    ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
+                }
+            });
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -102,6 +118,12 @@ namespace AltitudeIT_Full_Stack
 
 
             app.MapControllers();
+
+            var uploadsDir = "/app/uploads/profiles";
+            if (!Directory.Exists(uploadsDir))
+            {
+                Directory.CreateDirectory(uploadsDir);
+            }
 
             app.Run();
         }

@@ -27,13 +27,13 @@ const Navbar = () => {
                   <Link to="/admin/home" className="nav-link">Home</Link>
                   <Link to="/admin/products" className="nav-link">Products</Link>
                   <Link to="/admin/users" className="nav-link">Users</Link>
-                  <Link to="/admin/analytics" className="nav-link">Analytics</Link>
+                  <Link to="/profile" className="nav-link">Profile</Link>
                 </>
               ) : (
                 <>
                   <Link to="/user/products" className="nav-link">Products</Link>
                   <Link to="/user/orders" className="nav-link">Orders</Link>
-                  <Link to="/user/profile" className="nav-link">Profile</Link>
+                  <Link to="/profile" className="nav-link">Profile</Link>
                 </>
               )}
             </div>

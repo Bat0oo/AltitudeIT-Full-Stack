@@ -75,8 +75,7 @@ const UserHome = () => {
         <div className="dashboard-nav">
           <Link to="/user/home" className="nav-item">Home</Link>
           <Link to="/user/products" className="nav-item">Products</Link>
-          <Link to="/user/orders" className="nav-item">Orders</Link>
-          <Link to="/user/profile" className="nav-item">Profile</Link>
+          <Link to="/profile" className="nav-item">Profile</Link>
         </div>
       </div>
 
