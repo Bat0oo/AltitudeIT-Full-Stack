@@ -16,5 +16,6 @@ namespace AltitudeIT_Full_Stack.DTO
         public double Price { get; set; }
         [Required(ErrorMessage = "Product image is required.")]
         public string Image { get; set; } = string.Empty;
+        public IFormFile? ImageFile { get; set; }
     }
 }

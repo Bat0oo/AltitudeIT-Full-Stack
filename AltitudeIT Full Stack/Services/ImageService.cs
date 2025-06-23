@@ -86,15 +86,21 @@ namespace AltitudeIT_Full_Stack.Services
                     : Path.GetFileName(imagePath);
 
                 var fullPath = Path.Combine(UploadsPath, "profiles", fileName);
+                var fullPathProduct = Path.Combine(UploadsPath, "products", fileName);
 
                 if (File.Exists(fullPath))
                 {
                     File.Delete(fullPath);
                     _logger.LogInformation($"Image deleted successfully: {fullPath}");
                     return true;
+                }else if(File.Exists(fullPathProduct))
+                {
+                    File.Delete(fullPathProduct);
+                    _logger.LogInformation($"Image deleted succesfully: {fullPathProduct}");
+                    return true; 
                 }
 
-                return false;
+                    return false;
             }
             catch (Exception ex)
             {
@@ -117,7 +123,7 @@ namespace AltitudeIT_Full_Stack.Services
 
                 // Generate unique filename
                 var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-                var fileName = $"product_{productId}_{Guid.NewGuid()}{extension}";
+                var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(productsPath, fileName);
 
                 // Save file to Docker volume

@@ -239,7 +239,6 @@ const UserProfile = () => {
 const result = await userService.updateUser(user.id, formData, imageFile);
       
       if (result.success) {
-        // Refresh user data after successful update
         const updatedResult = await userService.getUserById(user.id);
         if (updatedResult.success) {
           setUser(updatedResult.data);

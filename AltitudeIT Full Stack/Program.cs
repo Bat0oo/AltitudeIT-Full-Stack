@@ -124,6 +124,11 @@ namespace AltitudeIT_Full_Stack
             {
                 Directory.CreateDirectory(uploadsDir);
             }
+            var uploadsDirProd = "/app/uploads/products";
+            if (!Directory.Exists(uploadsDirProd))
+            {
+                Directory.CreateDirectory(uploadsDirProd);
+            }
 
             app.Run();
         }

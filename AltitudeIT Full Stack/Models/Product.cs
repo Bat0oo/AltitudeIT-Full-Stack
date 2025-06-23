@@ -1,5 +1,6 @@
 ﻿using AltitudeIT_Full_Stack.Enums;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AltitudeIT_Full_Stack.Models
 {
@@ -16,6 +17,8 @@ namespace AltitudeIT_Full_Stack.Models
         [DataType(DataType.Currency)]
         public double Price { get; set; }
         [Required(ErrorMessage = "Product image is required.")]
-        public string Image { get; set; } = string.Empty;
+        public string? Image { get; set; } = string.Empty;
+        [NotMapped]
+        public IFormFile? ImageFile { get; set; }
     }
 }

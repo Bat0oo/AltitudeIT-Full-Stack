@@ -9,6 +9,6 @@ namespace AltitudeIT_Full_Stack.DTO
         public Category Category { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public double Price { get; set; }
-        public string Image { get; set; } = string.Empty;
+        public string? Image { get; set; } 
     }
 }

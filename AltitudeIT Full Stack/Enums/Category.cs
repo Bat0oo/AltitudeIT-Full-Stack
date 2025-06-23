@@ -2,9 +2,13 @@
 {
     public enum Category
     {
-        Laptops=1,
-        Audio=2,
-        Wearables = 3,
-        Smartphones = 4
+        Tablets=0,
+        Smartphones=1,
+        Laptops = 2,
+        Cameras = 3,
+        Gaming =4,
+        Audio =5,
+        Wearables=6,
+        Accessories=7
     }
 }
