@@ -1,68 +1,74 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { productService } from '../../services/productService';
+import { Package, X } from 'lucide-react';
+import userService from '../../services/userService';
 
 const UserHome = () => {
   const { user } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const products = [
-    {
-      id: 1,
-      name: 'Phone',
-      price: '$999',
-      image: '/api/placeholder/150/150',
-      category: 'Electronics'
-    },
-    {
-      id: 2,
-      name: 'Laptop',
-      price: '$1299',
-      image: '/api/placeholder/150/150',
-      category: 'Electronics'
-    },
-    {
-      id: 3,
-      name: 'Headphones',
-      price: '$199',
-      image: '/api/placeholder/150/150',
-      category: 'Audio'
-    },
-    {
-      id: 4,
-      name: 'Camera',
-      price: '$599',
-      image: '/api/placeholder/150/150',
-      category: 'Photography'
-    },
-    {
-      id: 5,
-      name: 'Watch',
-      price: '$299',
-      image: '/api/placeholder/150/150',
-      category: 'Accessories'
-    },
-    {
-      id: 6,
-      name: 'Tablet',
-      price: '$499',
-      image: '/api/placeholder/150/150',
-      category: 'Electronics'
-    },
-    {
-      id: 7,
-      name: 'Gaming Console',
-      price: '$399',
-      image: '/api/placeholder/150/150',
-      category: 'Gaming'
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const result = await productService.getAllProducts();
+      if (result.success) {
+        setProducts(result.data);
+      } else {
+        setError('Failed to fetch products');
+      }
+    } catch (err) {
+      setError('Error fetching products');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(price);
+  };
+
+  const getCategoryName = (categoryEnum) => {
+    const categoryMap = {
+      0: 'Tablets',
+      1: 'Smartphones', 
+      2: 'Laptops',
+      3: 'Cameras',
+      4: 'Gaming',
+      5: 'Audio',
+      6: 'Wearables',
+      7: 'Accessories'
+    };
+    return categoryMap[categoryEnum] || 'Unknown';
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div className="admin-loading">
+          <div className="loading-spinner"></div>
+          <p>Loading products...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
         <div className="user-welcome">
           <img 
-            src={user?.image || '/api/placeholder/60/60'} 
+            src={userService.getImageUrl ? userService.getImageUrl(user?.image) : '/api/placeholder/60/60'} 
             alt="User" 
             className="user-avatar-large"
           />
@@ -79,20 +85,42 @@ const UserHome = () => {
         </div>
       </div>
 
+      {error && (
+        <div className="error-message">
+          {error}
+          <button onClick={() => setError('')} className="error-close">
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       <div className="products-grid">
         {products.map(product => (
           <div key={product.id} className="product-card">
             <div className="product-image">
-              <img src={product.image} alt={product.name} />
+              {product.image ? (
+                <img 
+                  src={productService.getImageUrl(product.image)} 
+                  alt={product.name}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : (
+                <div className="product-image-fallback">
+                  <Package size={40} />
+                </div>
+              )}
+              <div className="product-image-fallback" style={{ display: 'none' }}>
+                <Package size={40} />
+              </div>
             </div>
             <div className="product-info">
               <h3 className="product-name">{product.name}</h3>
-              <p className="product-category">{product.category}</p>
+              <p className="product-category">{getCategoryName(product.category)}</p>
               <div className="product-footer">
-                <span className="product-price">{product.price}</span>
-                <button className="btn btn-sm btn-primary">
-                  Add to Cart
-                </button>
+                <span className="product-price">{formatPrice(product.price)}</span>
               </div>
             </div>
           </div>

@@ -12,6 +12,7 @@ import UserProfile from './components/common/UserProfile';
 import AdminUsers from './components/admin/AdminUsers';
 import AdminProducts from './components/admin/AdminProducts';
 import AdminAnalytics from './components/admin/AdminAnalytics';
+import UserProducts from './components/user/UserProducts';
 
 import './styles/global.css';
 import { useEffect } from 'react';
@@ -45,10 +46,7 @@ function App() {
               path="/user/products" 
               element={
                 <ProtectedRoute requiredRole={1}>
-                  <div className="dashboard-container">
-                    <h1>Customer Products Page TODO</h1>
-                    <p>TODO</p>
-                  </div>
+                  <UserProducts></UserProducts>
                 </ProtectedRoute>
               } />
               <Route 
@@ -57,7 +55,6 @@ function App() {
                <ProtectedRoute>
                   <UserProfile />
                 </ProtectedRoute>
-
               } 
             />
 
