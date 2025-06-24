@@ -2,19 +2,59 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Plus, BarChart3, Users, Package } from 'lucide-react';
+import { useState,useEffect, } from 'react';
+import productService from '../../services/productService';
+import userService from '../../services/userService';
 
 const AdminHome = () => {
   const { user } = useAuth();
 
+  const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+useEffect(()=>{
+fetchData();
+},[]);
+
+const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [usersResult, productsResult] = await Promise.all([
+        userService.getAllUsers(),
+        productService.getAllProducts()
+      ]);
+
+      if (usersResult.success) {
+        setUsers(usersResult.data);
+      } else {
+        console.error('Failed to fetch users:', usersResult.message);
+      }
+
+      if (productsResult.success) {
+        setProducts(productsResult.data);
+      } else {
+        console.error('Failed to fetch products:', productsResult.message);
+      }
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError('Error fetching data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const stats = [
     {
       title: 'Total Products',
-      value: '96',
+      value: loading ? '...' : products.length,
       color: 'purple'
     },
     {
       title: 'Active Users',
-      value: '164',
+      value: loading ? '...' : users.length,
       color: 'orange'
     }
   ];
@@ -23,13 +63,11 @@ const AdminHome = () => {
     {
       title: 'Add Products',
       icon: Plus,
-      link: '/admin/products/add',
       color: 'purple'
     },
     {
       title: 'Analytics',
       icon: BarChart3,
-      link: '/admin/analytics',
       color: 'gray'
     }
   ];
@@ -38,9 +76,9 @@ const AdminHome = () => {
     <div className="dashboard-container admin-dashboard">
       <div className="dashboard-header">
         <div className="user-welcome">
-          <img 
-            src={user?.image || '/api/placeholder/60/60'} 
-            alt="Admin" 
+          <img
+            src={userService.getImageUrl(user?.image) || '/api/placeholder/60/60'}
+            alt="Admin"
             className="user-avatar-large"
           />
           <div>
@@ -48,7 +86,7 @@ const AdminHome = () => {
             <p>Functions</p>
           </div>
         </div>
-        
+
         <div className="dashboard-nav">
           <Link to="/admin/home" className="nav-item active">Home</Link>
           <Link to="/admin/products" className="nav-item">Products</Link>
@@ -58,11 +96,21 @@ const AdminHome = () => {
       </div>
 
       <div className="admin-content">
+        {error && (
+          <div style={{ color: 'red', marginBottom: '16px', padding: '10px', backgroundColor: '#fee', borderRadius: '4px' }}>
+            Error loading data: {error}
+          </div>
+        )}
+        
         <div className="stats-grid">
           {stats.map((stat, index) => (
-            <div key={index} className={`stat-card stat-${stat.color}`}>
-              <div className="stat-value">{stat.value}</div>
-              <div className="stat-title">{stat.title}</div>
+            <div key={index} className="stat-card" style={{ backgroundColor: '#DFDFDF', padding: '20px', borderRadius: '8px', textAlign: 'center', marginBottom: '16px' }}>
+              <div className="stat-value" style={{ fontSize: '48px', fontWeight: 'bold', color: stat.color === 'purple' ? '#9333EA' : '#FF8C00', margin: '0' }}>
+                {stat.value}
+              </div>
+              <div className="stat-title" style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
+                {stat.title}
+              </div>
             </div>
           ))}
         </div>
@@ -71,50 +119,27 @@ const AdminHome = () => {
           <h2>Quick Actions</h2>
           <div className="actions-grid">
             {quickActions.map((action, index) => (
-              <Link 
-                key={index} 
-                to={action.link} 
-                className={`action-card action-${action.color}`}
-              >
+          <Link
+        key={index}
+        to={index === 1 ? "/admin/analytics" : "/admin/products"}
+        className={`action-card action-${action.color}`}
+        state={{ showModal: index !== 1 }}
+        style={{ 
+          backgroundColor: '#DFDFDF', 
+          padding: '20px', 
+          borderRadius: '8px', 
+          textAlign: 'center', 
+          textDecoration: 'none', 
+          color: 'inherit', 
+          display: 'block' 
+        }}
+      >
                 <div className="action-icon">
                   <action.icon size={32} />
                 </div>
                 <div className="action-title">{action.title}</div>
               </Link>
             ))}
-          </div>
-        </div>
-
-        <div className="recent-activity">
-          <h2>Recent Activity</h2>
-          <div className="activity-list">
-            <div className="activity-item">
-              <div className="activity-icon">
-                <Package size={20} />
-              </div>
-              <div className="activity-content">
-                <p><strong>New product added:</strong> iPhone 15 Pro</p>
-                <span className="activity-time">2 hours ago</span>
-              </div>
-            </div>
-            <div className="activity-item">
-              <div className="activity-icon">
-                <Users size={20} />
-              </div>
-              <div className="activity-content">
-                <p><strong>New user registered:</strong> john.doe@email.com</p>
-                <span className="activity-time">4 hours ago</span>
-              </div>
-            </div>
-            <div className="activity-item">
-              <div className="activity-icon">
-                <BarChart3 size={20} />
-              </div>
-              <div className="activity-content">
-                <p><strong>Sales report generated</strong></p>
-                <span className="activity-time">1 day ago</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>

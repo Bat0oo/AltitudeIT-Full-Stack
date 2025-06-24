@@ -45,8 +45,6 @@ namespace AltitudeIT_Full_Stack.Repositories
             var transaction = _context.Database.BeginTransaction();
             try
             {
-                Console.WriteLine("====================================================================================================");
-                Console.WriteLine("test3"+product.Image);
                 _context.Products.Update(product);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -80,7 +78,6 @@ namespace AltitudeIT_Full_Stack.Repositories
                 throw;
             }
         }
-
         public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(Category category)
         {
             var products = await _context.Products

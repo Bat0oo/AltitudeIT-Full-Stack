@@ -108,19 +108,6 @@ namespace AltitudeIT_Full_Stack.Controllers
         [Authorize(Roles ="Admin")]
         public async Task<ActionResult<ProductResponseDTO>> UpdateProduct(int id, [FromForm] ProductUpdateRequestDTO request)
         {
-            /*
-            Console.WriteLine($"Updating product {id}");
-            Console.WriteLine($"Image file received: {request.ImageFile?.FileName ?? "null"}");
-            Console.WriteLine($"Request data: {JsonSerializer.Serialize(request)}");
-            */
-            // Add these debug lines at the very beginning
-            Console.WriteLine("====================================================================================================");
-            Console.WriteLine($"UPDATE REQUEST RECEIVED - Product ID: {id}");
-            Console.WriteLine($"Request.ImageFile is null: {request.ImageFile == null}");
-            Console.WriteLine($"Request.ImageFile filename: {request.ImageFile?.FileName ?? "NULL"}");
-            Console.WriteLine($"Request.ImageFile size: {request.ImageFile?.Length ?? 0}");
-            Console.WriteLine($"Request.ImageFile content type: {request.ImageFile?.ContentType ?? "NULL"}");
-            Console.WriteLine("====================================================================================================");
 
             if (!ModelState.IsValid)
             {
@@ -139,30 +126,20 @@ namespace AltitudeIT_Full_Stack.Controllers
                     return NotFound(new { message = "Product not found" });
                 }
                 string newImagePath = existingProduct.Image;
-                Console.WriteLine("====================================================================================================");
-                Console.WriteLine("TEST 4 - Existing image path: " + newImagePath);
 
-                Console.WriteLine($"About to check image file - ImageFile null: {request.ImageFile == null}");
 
                 if (request.ImageFile != null)
                 {
-                    Console.WriteLine("ImageFile is not null, checking if valid...");
                     bool isValid = _imageService.IsValidImage(request.ImageFile);
-                    Console.WriteLine($"Image validation result: {isValid}");
 
                     if (isValid)
                     {
-                        Console.WriteLine("Image is valid, proceeding with image processing...");
                         if (!string.IsNullOrEmpty(existingProduct.Image))
                         {
-                            Console.WriteLine($"Deleting existing image: {existingProduct.Image}");
                             await _imageService.DeleteImageAsync(existingProduct.Image);
                         }
 
                         newImagePath = await _imageService.SaveProductImageAsync(request.ImageFile, id);
-                        Console.WriteLine("====================================================================================================");
-                        Console.WriteLine("test1");
-                        Console.WriteLine($"New product image saved: {newImagePath}");
                     }
                     else
                     {
@@ -175,8 +152,6 @@ namespace AltitudeIT_Full_Stack.Controllers
                 }
 
                 var updatedProduct = await _productService.UpdateProductAsync(id, request, newImagePath);
-                Console.WriteLine("====================================================================================================");
-                Console.WriteLine("TEST UPDATED: " + updatedProduct.Image);
                 await _applicationDbContext.SaveChangesAsync();
 
                 return Ok(new {success=true, data=updatedProduct});

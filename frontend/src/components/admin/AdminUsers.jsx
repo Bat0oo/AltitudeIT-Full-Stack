@@ -118,7 +118,7 @@ const AdminUsers = () => {
       <div className="dashboard-header">
         <div className="user-welcome">
           <img
-            src={currentUser?.imageUrl || '/api/placeholder/60/60'}
+            src={userService.getImageUrl(currentUser?.image) || '/api/placeholder/60/60'}
             alt="Admin"
             className="user-avatar-large"
           />
@@ -128,11 +128,10 @@ const AdminUsers = () => {
           </div>
         </div>
         
-        {/* Navigation Menu */}
         <nav className="dashboard-nav">
-          <a href="/home" className="nav-link">Home</a>
-          <a href="/products" className="nav-link">Products</a>
-          <a href="/users" className="nav-link active">Users</a>
+          <a href="/admin/home" className="nav-link">Home</a>
+          <a href="/admin/products" className="nav-link">Products</a>
+          <a href="/admin/users" className="nav-link active">Users</a>
           <a href="/profile" className="nav-link">Profile</a>
         </nav>
       </div>
@@ -156,7 +155,6 @@ const AdminUsers = () => {
       )}
 
       <div className="admin-users-layout">
-        {/* Left side - Active Users List */}
         <div className="users-section">
           <div className="users-header">
             <h2>Active Users</h2>
@@ -238,9 +236,7 @@ const AdminUsers = () => {
           </div>
         </div>
 
-        {/* Right side - Stats and Actions */}
         <div className="users-sidebar">
-          {/* Total Users Card with Orange Number */}
           <div className="users-stat-card" style={{ backgroundColor: '#DFDFDF', padding: '20px', borderRadius: '8px', textAlign: 'center', marginBottom: '16px' }}>
             <div className="stat-number" style={{ fontSize: '48px', fontWeight: 'bold', color: '#FF8C00', margin: '0' }}>
               {users.length}
@@ -250,7 +246,6 @@ const AdminUsers = () => {
             </div>
           </div>
 
-          {/* Delete Users Card with Trash Icon */}
           <div className="users-actions-card" style={{ backgroundColor: '#DFDFDF', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
             <button 
               className={`users-action-btn ${deleteMode ? 'cancel' : 'delete'}`}

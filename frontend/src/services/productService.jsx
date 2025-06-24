@@ -86,7 +86,7 @@ export const productService = {
       
     if (productData.name) formData.append('Name', productData.name);
     if (productData.category) formData.append('Category', productData.category);
-    if (productData.price != null) formData.append('Price', productData.price); // allow 0
+    if (productData.price != null) formData.append('Price', productData.price); 
 
       if (imageFile) {
         formData.append('Image', imageFile);
@@ -108,7 +108,7 @@ export const productService = {
 
     if (productData.name) formData.append('name', productData.name);
     if (productData.category) formData.append('category', productData.category);
-    if (productData.price != null) formData.append('price', productData.price); // allow 0
+    if (productData.price != null) formData.append('price', productData.price); 
 
       if (imageFile) {
         formData.append('ImageFile', imageFile);
@@ -152,7 +152,7 @@ export const productService = {
       };
     }
   },
-//add to separate file, look cleaner
+
   getImageUrl(imagePath) {
     if (!imagePath) return null;
     console.log('Original image path:', imagePath);

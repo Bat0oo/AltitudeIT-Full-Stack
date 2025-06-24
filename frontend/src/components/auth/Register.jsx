@@ -64,7 +64,6 @@ const handleImageChange = (e) => {
       image: null
     });
     setImagePreview(null);
-    // Reset the file input
     const fileInput = document.getElementById('image-upload');
     if (fileInput) {
       fileInput.value = '';
@@ -185,19 +184,7 @@ const handleImageChange = (e) => {
               />
             </div>
           </div>
-{/* 
-          <div className="form-group">
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="form-select"
-            >
-              <option value="User">User</option>
-              <option value="Admin">Admin</option>
-            </select>
-          </div>
-*/}
+
           <div className="form-group">
             <label className="image-upload-label">
               Profile Picture (Optional)

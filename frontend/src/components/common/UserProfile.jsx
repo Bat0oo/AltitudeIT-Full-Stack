@@ -34,13 +34,12 @@ const UserProfile = () => {
   const cameraInputRef = useRef(null);
 
   useEffect(() => {
-    console.log('Current user from context:', currentUser); // Debug log
+    console.log('Current user from context:', currentUser);
     if (currentUser && currentUser.id) {
       loadUserProfile();
     } else {
-      // If no user from context, try to get from service
       const storedUser = userService.getUser();
-      console.log('Stored user from service:', storedUser); // Debug log
+      console.log('Stored user from service:', storedUser); 
       if (storedUser && storedUser.id) {
         loadUserProfileById(storedUser.id);
       } else {
@@ -61,15 +60,15 @@ const UserProfile = () => {
       setIsLoading(true);
       setError('');
       
-      console.log('Loading profile for user ID:', currentUser.id); // Debug log
+      console.log('Loading profile for user ID:', currentUser.id); 
       const result = await userService.getUserById(currentUser.id);
       
-      console.log('Service response:', result); // Debug log
+      console.log('Service response:', result); 
       
       if (result.success && result.data) {
         setUser(result.data);
         setFormData(result.data);
-        console.log('Profile loaded successfully:', result.data); // Debug log
+        console.log('Profile loaded successfully:', result.data); 
       } else {
         throw new Error(result.error || 'Failed to load profile');
       }
@@ -87,7 +86,7 @@ const UserProfile = () => {
       setIsLoading(true);
       setError('');
       
-      console.log('Loading profile for user ID:', userId); // Debug log
+      console.log('Loading profile for user ID:', userId);
       const result = await userService.getUserById(userId);
       
       if (result.success && result.data) {
@@ -304,7 +303,6 @@ const handleImageError = (e) => {
     }
   };
 
-  // Show loading state
   if (isLoading) {
     return (
       <div className="dashboard-container">
@@ -316,7 +314,6 @@ const handleImageError = (e) => {
     );
   }
 
-  // Show error state if no user data
   if (!user.id && error) {
     return (
       <div className="dashboard-container">
@@ -548,7 +545,8 @@ const handleImageError = (e) => {
                       name="email"
                       value={formData.email || ''}
                       onChange={handleInputChange}
-                      disabled={!isEditing}
+                     // disabled={!isEditing}
+                     disabled={true}
                       className={`form-input ${validationErrors.email ? 'error' : ''}`}
                     />
                   </div>
@@ -583,7 +581,7 @@ const handleImageError = (e) => {
                     type="password"
                     name="password"
                     value={formData.password || ''}
-                    placeholder="Enter new password (leave blank to keep current)"
+                    placeholder="Enter new password or repeat old (Required)"
                     onChange={handleInputChange}
                     className={`form-input ${validationErrors.password ? 'error' : ''}`}
                   />

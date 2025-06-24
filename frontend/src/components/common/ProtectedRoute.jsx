@@ -1,4 +1,3 @@
-// src/components/common/ProtectedRoute.jsx
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -30,21 +29,17 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 
 if (requiredRole) {
     const userRole = user?.role;
-    
-    // Convert both to numbers for comparison
     const userRoleNum = Number(userRole);
     const requiredRoleNum = Number(requiredRole);
     
     console.log('Role comparison:', { userRoleNum, requiredRoleNum });
     
     if (userRoleNum !== requiredRoleNum) {
-      // Redirect based on actual user role
       if (userRoleNum === 2) {
         return <Navigate to="/admin/home" replace />;
       } else if (userRoleNum === 1) {
         return <Navigate to="/user/home" replace />;
       } else {
-        // Unknown role, redirect to login
         return <Navigate to="/login" replace />;
       }
     }

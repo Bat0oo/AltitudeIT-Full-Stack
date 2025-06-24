@@ -11,10 +11,17 @@ import AdminHome from './components/home/AdminHome';
 import UserProfile from './components/common/UserProfile'; 
 import AdminUsers from './components/admin/AdminUsers';
 import AdminProducts from './components/admin/AdminProducts';
+import AdminAnalytics from './components/admin/AdminAnalytics';
 
 import './styles/global.css';
+import { useEffect } from 'react';
+
+
 
 function App() {
+  useEffect(()=>{
+    document.title="AltitudeIT Full Stack App"
+  },[]) ;
   return (
     <AuthProvider>
       <Router>
@@ -79,6 +86,14 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+                       <Route 
+           path="/admin/analytics"
+           element={
+            <ProtectedRoute requiredRole={2}>
+              <AdminAnalytics></AdminAnalytics>
+            </ProtectedRoute>
+           }
+           />
 
         </Routes>
       </Router>
