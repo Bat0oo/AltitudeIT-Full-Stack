@@ -14,7 +14,7 @@ namespace AltitudeIT_Full_Stack.DTO
         [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero.")]
         [DataType(DataType.Currency)]
         public double Price { get; set; }
-        [Required(ErrorMessage = "Product image is required.")]
-        public string Image { get; set; } = string.Empty;
+        public string? Image { get; set; } 
+        public IFormFile? ImageFile { get; set; }
     }
 }

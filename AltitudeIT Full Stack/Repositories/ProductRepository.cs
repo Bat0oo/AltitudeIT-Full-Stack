@@ -78,7 +78,6 @@ namespace AltitudeIT_Full_Stack.Repositories
                 throw;
             }
         }
-
         public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(Category category)
         {
             var products = await _context.Products

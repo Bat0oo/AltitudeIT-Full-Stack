@@ -11,11 +11,13 @@ namespace AltitudeIT_Full_Stack.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly IImageService _imageService;
         private readonly ApplicationDbContext _context;
-        public ProductService(IProductRepository productRepository, ApplicationDbContext context)
+        public ProductService(IProductRepository productRepository, ApplicationDbContext context, IImageService imageService)
         {
             _productRepository = productRepository;
             _context = context;
+            _imageService = imageService;
         }
 
         public async Task<IEnumerable<ProductResponseDTO>> GetAllProductsAsync()
@@ -40,19 +42,19 @@ namespace AltitudeIT_Full_Stack.Services
             var products = await _productRepository.GetProductsByCategoryAsync(category);
             return products.Select(MapToResponseDTO);
         }
-        public async Task<ProductResponseDTO> CreateProductAsync(ProductCreateRequestDTO request)
+        public async Task<ProductResponseDTO> CreateProductAsync(ProductCreateRequestDTO request, string? imagePath = null)
         {
             var product=new Product
             {
                 Name = request.Name,
                 Category = request.Category,
                 Price = request.Price,
-                Image = request.Image
+                Image = imagePath
             };
             var createdProduct = await _productRepository.CreateProductAsync(product);
             return MapToResponseDTO(createdProduct);
         }
-        public async Task<ProductResponseDTO?> UpdateProductAsync(int id, ProductUpdateRequestDTO request)
+        public async Task<ProductResponseDTO?> UpdateProductAsync(int id, ProductUpdateRequestDTO request, string? imagePath = null)
         {
             var productToUpdate = await _productRepository.GetProductByIdAsync(id);
             if(productToUpdate == null)
@@ -62,14 +64,40 @@ namespace AltitudeIT_Full_Stack.Services
             productToUpdate.Name= request.Name;
             productToUpdate.Category= request.Category;
             productToUpdate.Price= request.Price;
-            productToUpdate.Image= request.Image;
+            Console.WriteLine("test1" + request.Image);
+            
+            //productToUpdate.Image= request.Image;
+            if (!string.IsNullOrEmpty(imagePath))
+            {
+                productToUpdate.Image = imagePath;
+                Console.WriteLine("test2"+productToUpdate.Image);
+            }
+            else if (imagePath == null && request.ImageFile == null)
+            {
+                productToUpdate.Image = null;
+            }
 
             var updatedProduct = await _productRepository.UpdateProductAsync(productToUpdate);
             return MapToResponseDTO(updatedProduct);
         }
-        public Task<bool> DeleteProductAsync(int id)
+        public async Task<bool> DeleteProductAsync(int id)
         {
-            return _productRepository.DeleteProductAsync(id);
+            var product = await _productRepository.GetProductByIdAsync(id);
+            if (product == null)
+                return false;
+
+            if (!string.IsNullOrEmpty(product.Image))
+            {
+                try
+                {
+                    await _imageService.DeleteImageAsync(product.Image);
+                }
+                catch
+                {
+                    
+                }
+            }
+            return await _productRepository.DeleteProductAsync(id);
         }
 
         private static ProductResponseDTO MapToResponseDTO(Product product)

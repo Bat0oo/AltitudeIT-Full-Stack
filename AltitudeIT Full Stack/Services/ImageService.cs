@@ -6,9 +6,9 @@ namespace AltitudeIT_Full_Stack.Services
     public class ImageService : IImageService
     {
         private readonly ILogger<ImageService> _logger;
-        private const string UploadsPath = "/app/uploads"; // Docker volume path
+        private const string UploadsPath = "/app/uploads"; 
         private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
-        private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
+        private const long MaxFileSize = 5 * 1024 * 1024; 
 
         public ImageService(ILogger<ImageService> logger)
         {
@@ -20,16 +20,13 @@ namespace AltitudeIT_Full_Stack.Services
             if (file == null || file.Length == 0)
                 return false;
 
-            // Check file size
             if (file.Length > MaxFileSize)
                 return false;
 
-            // Check file extension
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (!_allowedExtensions.Contains(extension))
                 return false;
 
-            // Check MIME type
             var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
             if (!allowedMimeTypes.Contains(file.ContentType.ToLowerInvariant()))
                 return false;
@@ -43,19 +40,16 @@ namespace AltitudeIT_Full_Stack.Services
             {
                 var profilesPath = Path.Combine(UploadsPath, "profiles");
 
-                // Ensure directory exists
                 if (!Directory.Exists(profilesPath))
                 {
                     Directory.CreateDirectory(profilesPath);
                 }
 
-                // Generate unique filename
                 var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
                 //var fileName = $"user_{userId}_{Guid.NewGuid()}{extension}";
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(profilesPath, fileName);
 
-                // Save file to Docker volume
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
@@ -80,21 +74,26 @@ namespace AltitudeIT_Full_Stack.Services
                 if (string.IsNullOrEmpty(imagePath))
                     return false;
 
-                // Extract filename from path (handle both relative and API endpoint paths)
                 var fileName = imagePath.Contains("images/")
                     ? imagePath.Split("images/").Last()
                     : Path.GetFileName(imagePath);
 
                 var fullPath = Path.Combine(UploadsPath, "profiles", fileName);
+                var fullPathProduct = Path.Combine(UploadsPath, "products", fileName);
 
                 if (File.Exists(fullPath))
                 {
                     File.Delete(fullPath);
                     _logger.LogInformation($"Image deleted successfully: {fullPath}");
                     return true;
+                }else if(File.Exists(fullPathProduct))
+                {
+                    File.Delete(fullPathProduct);
+                    _logger.LogInformation($"Image deleted succesfully: {fullPathProduct}");
+                    return true; 
                 }
 
-                return false;
+                    return false;
             }
             catch (Exception ex)
             {
@@ -109,18 +108,15 @@ namespace AltitudeIT_Full_Stack.Services
             {
                 var productsPath = Path.Combine(UploadsPath, "products");
 
-                // Ensure directory exists
                 if (!Directory.Exists(productsPath))
                 {
                     Directory.CreateDirectory(productsPath);
                 }
 
-                // Generate unique filename
                 var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-                var fileName = $"product_{productId}_{Guid.NewGuid()}{extension}";
+                var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(productsPath, fileName);
 
-                // Save file to Docker volume
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
@@ -128,7 +124,6 @@ namespace AltitudeIT_Full_Stack.Services
 
                 _logger.LogInformation($"Product image saved successfully: {filePath}");
 
-                // Return relative path for API endpoint (for future products controller)
                 return $"/api/uploads/products/{fileName}";
             }
             catch (Exception ex)

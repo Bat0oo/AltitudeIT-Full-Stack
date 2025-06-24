@@ -57,7 +57,7 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
         }
         [HttpPost]
-        public async Task<ActionResult<UserResponseDTO>> CreateUser([FromForm] RegisterRequestDTO request) //[fromform] [formbody]
+        public async Task<ActionResult<UserResponseDTO>> CreateUser([FromForm] RegisterRequestDTO request) 
         {
             if (!ModelState.IsValid)
             {
@@ -95,7 +95,6 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
             try
             {
-                // var user = await _userService.UpdateUserAsync(id, request);
                 var existingUser = await _userService.GetUserByIdAsync(id);
                 if (existingUser == null)
                 {
@@ -159,7 +158,6 @@ namespace AltitudeIT_Full_Stack.Controllers
         {
             var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "profiles");
 
-            // Ensure directory exists
             if (!Directory.Exists(uploadsPath))
             {
                 Directory.CreateDirectory(uploadsPath);
@@ -181,7 +179,7 @@ namespace AltitudeIT_Full_Stack.Controllers
         {
             try
             {
-                var uploadsPath = Path.Combine("/app/uploads", "profiles"); // Docker volume path
+                var uploadsPath = Path.Combine("/app/uploads", "profiles"); 
                 var filePath = Path.Combine(uploadsPath, fileName);
 
                 if (!System.IO.File.Exists(filePath))

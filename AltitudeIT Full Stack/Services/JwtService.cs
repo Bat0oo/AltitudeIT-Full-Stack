@@ -26,7 +26,7 @@ namespace AltitudeIT_Full_Stack.Services
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new(ClaimTypes.Name, user.Email),
                 new(ClaimTypes.Email, user.Email),
-                new(ClaimTypes.Role, user.Role.ToString()), //enum->string
+                new(ClaimTypes.Role, user.Role.ToString()),
                 new(ClaimTypes.GivenName, user.FirstName),
                 new(ClaimTypes.Surname, user.LastName)
             };

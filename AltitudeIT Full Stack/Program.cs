@@ -55,12 +55,12 @@ namespace AltitudeIT_Full_Stack
                     policy =>
                     {
                         policy.WithOrigins(
-                        "http://localhost:3000",    // React dev server
-                        "http://localhost:8080",    // Docker frontend
-                        "https://localhost:3000",   // HTTPS React dev server
-                        "https://localhost:8080",   // HTTPS Docker frontend
-                        "http://localhost:5055",    // Local backend HTTP
-                        "https://localhost:7280"    // Local backend HTTPS
+                        "http://localhost:3000",    
+                        "http://localhost:8080",    
+                        "https://localhost:3000",   
+                        "https://localhost:8080",   
+                        "http://localhost:5055",    
+                        "https://localhost:7280"    
                     )
                               .AllowAnyHeader()
                               .AllowAnyMethod()
@@ -80,6 +80,8 @@ namespace AltitudeIT_Full_Stack
 
             builder.Services.AddScoped<IImageService, ImageService>();
 
+            builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
@@ -97,7 +99,6 @@ namespace AltitudeIT_Full_Stack
                 RequestPath = "/api/uploads" ,
                 OnPrepareResponse = ctx =>
                 {
-                    // Optional: Add cache headers
                     ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
                 }
             });
@@ -123,6 +124,11 @@ namespace AltitudeIT_Full_Stack
             if (!Directory.Exists(uploadsDir))
             {
                 Directory.CreateDirectory(uploadsDir);
+            }
+            var uploadsDirProd = "/app/uploads/products";
+            if (!Directory.Exists(uploadsDirProd))
+            {
+                Directory.CreateDirectory(uploadsDirProd);
             }
 
             app.Run();

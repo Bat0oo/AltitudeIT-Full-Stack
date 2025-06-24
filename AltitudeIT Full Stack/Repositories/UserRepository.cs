@@ -79,7 +79,7 @@ namespace AltitudeIT_Full_Stack.Repositories
         {
             var query= _context.Users.Where(u => u.Email == email);
             if (excludeCurrentUserId.HasValue)
-                query = query.Where(u => u.Id != excludeCurrentUserId.Value); //because admin also can update users, also user doesn't need to change it
+                query = query.Where(u => u.Id != excludeCurrentUserId.Value); 
             return await query.AnyAsync();
         }
 

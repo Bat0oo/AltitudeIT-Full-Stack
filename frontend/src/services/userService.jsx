@@ -52,18 +52,7 @@ export const userService = {
    getImageUrl(imagePath) {
     if (!imagePath) return null;
     console.log('Original image path:', imagePath);
-    /*
-    if (imagePath.startsWith('http')) return imagePath;
-    
-    if (imagePath.startsWith('/uploads/')) {
-      return `${API_BASE_URL.replace('/api', '')}${imagePath}`;
-    }
-    
-    if (imagePath.startsWith('/api/')) {
-      return `${API_BASE_URL.replace('/api', '')}${imagePath}`;
-    }
-    
-    return `${API_BASE_URL.replace('/api', '')}/uploads/${imagePath}`;*/
+
   let cleanPath = imagePath;
     if (cleanPath.startsWith('/')) {
       cleanPath = cleanPath.substring(1);
@@ -91,7 +80,7 @@ export const userService = {
         success: true, 
         data: {
           ...response.data,
-          imageUrl: this.getImageUrl(response.data.image) // Add full image URL
+          imageUrl: this.getImageUrl(response.data.image) 
         }
       };
     } catch (error) {
@@ -157,7 +146,6 @@ export const userService = {
         }
       };
     } else {
-      // Handle case where response doesn't have success flag
       return {
         success: true,
         data: {

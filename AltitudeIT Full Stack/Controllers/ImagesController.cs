@@ -65,7 +65,6 @@ namespace AltitudeIT_Full_Stack.Controllers
             }
         }
 
-        // Alternative endpoint for users controller compatibility
         [HttpGet("users/images/{fileName}")]
         public async Task<IActionResult> GetUserImage(string fileName)
         {
