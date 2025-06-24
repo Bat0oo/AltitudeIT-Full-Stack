@@ -63,12 +63,12 @@ const fetchData = async () => {
     {
       title: 'Add Products',
       icon: Plus,
-      color: 'purple'
+      color:"#DFDFDF"
     },
     {
       title: 'Analytics',
       icon: BarChart3,
-      color: 'gray'
+      color: "#DFDFDF"
     }
   ];
 

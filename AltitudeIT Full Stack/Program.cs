@@ -3,6 +3,7 @@ using AltitudeIT_Full_Stack.Data;
 using AltitudeIT_Full_Stack.Models;
 using AltitudeIT_Full_Stack.Repositories;
 using AltitudeIT_Full_Stack.Repositories.Interfaces;
+using AltitudeIT_Full_Stack.Seed;
 using AltitudeIT_Full_Stack.Services;
 using AltitudeIT_Full_Stack.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,7 +16,7 @@ namespace AltitudeIT_Full_Stack
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -87,7 +88,12 @@ namespace AltitudeIT_Full_Stack
             using (var scope = app.Services.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            //    context.Database.Migrate();
+
+                var services = scope.ServiceProvider;
+
+                var config = services.GetRequiredService<IConfiguration>();
+                    context.Database.Migrate();
+                await DbSeed.SeedAdminAsync(context, config);
             }
 
             //app.UseStaticFiles();
@@ -131,7 +137,7 @@ namespace AltitudeIT_Full_Stack
                 Directory.CreateDirectory(uploadsDirProd);
             }
 
-            app.Run();
+            await app.RunAsync();
         }
     }
 }
