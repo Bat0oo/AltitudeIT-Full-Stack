@@ -4,19 +4,22 @@ services:
   backend:
     build: ./AltitudeIT Full Stack
     ports:
-      - "5000:5000"
+      - "8080:8080"
     depends_on:
-     - db
+      - db
     environment:
-     - ConnectionStrings__DefaultConnection=Server=db;Database=MyDatabase;User Id=sa;Password=Sifra123!;
+      -  ConnectionStrings__DefaultConnection=Server=db;Database=MyDatabase;User Id=sa;Password=Sifra123!;TrustServerCertificate=true
+    volumes:
+      - uploads:/app/uploads
 
- 
-#frontend:
- # build: ./ #dodati putanju
-  #ports:
-  # -"3000:80"
-  #depends_on:
-  # -backend
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000" #3000:80
+    environment:
+      - HOST=0.0.0.0
+    depends_on:
+      - backend
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -31,3 +34,4 @@ services:
 
 volumes:
   mssqldata:
+  uploads:
