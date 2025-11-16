@@ -1,31 +1,48 @@
-# AltitudeIT Full Stack
-# Admin i User Web aplikacija
+# AltitudeIT-Full-Stack
+A full-stack e-commerce application featuring user and product management with comprehensive CRUD operations and analytics.
 
-## Tehnologije 💻
+## 🔍 Overview
+This project is a complete e-commerce solution built with modern web technologies, featuring a React frontend and .NET backend. The application provides full product catalog management, user profiles, and statistical insights, all containerized with Docker for easy deployment.
 
-**Frontend**: React
-**Backend**: .NET
-**Baza podataka**: SQL Server
+## 🧰 Project Structure
+Frontend — React-based user interface
+Backend — .NET REST API
+Database — SQL Server
+Docker configuration for containerized deployment
 
-## Funckionalnosti
-### Admin
-CRUD operacije nad korisnicima
-CRUD operacije nad proizvodima
-Statistika
+## 🚀 Getting Started
+1. Install Docker Desktop
 
-### User
-Pregled proizvoda
+2. Clone the repository and run
+```bash
+git clone https://github.com/Bat0oo/AltitudeIT-Full-Stack.git
+cd AltitudeIT-Full-Stack
+docker-compose up --build
+```
 
-### Zajednicko
-Profil - Prikaz i izmjena 
+3. Access the application
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
 
-## Pokretanje
+4. Admin credentials: Check appsettings.json
 
-*1. Instalirati Docker Desktop*
-*2. Sljedecu komandu unijeti u terminal: docker-compose up --build*
+## ✨ Key Features
+CRUD operations for users
+CRUD operations for products
+Product catalog and browsing
+User profile management with viewing and editing capabilities
+Statistical dashboard and analytics
+Containerized deployment with Docker
 
-**Frontend**: http://localhost:3000
-**Backend API**: http://localhost:8080
+## 🧩 Tech Stack
+Frontend: React
+Backend: .NET/ASP.NET Core
+Database: SQL Server
+Containerization: Docker, Docker Compose
 
-**Admin nalog**: unutar appsettings.json
-
+## 📂 Use-Cases
+E-commerce platform development
+Learning full-stack development with .NET and React
+Product and inventory management systems
+User management and authentication
+Business analytics and reporting
